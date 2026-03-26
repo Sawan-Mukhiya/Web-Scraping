@@ -5,11 +5,22 @@
 import json
 from playwright.sync_api import sync_playwright
 
+def bypass_ads(page):
+    """Bypass ad pop-ups if they appear"""
+    try:
+        skip_btn = page.query_selector("button.inter")
+        if skip_btn:
+            skip_btn.click()
+    except Exception:
+        return  
+
+
 def scrape_entertainment(page):
     """Scrape top 5 entertainment articles"""
     articles = []
     try:
         page.goto("https://ekantipur.com", timeout=60000)
+        bypass_ads(page)
         page.wait_for_load_state("networkidle")
 
         # Navigate to Entertainment
@@ -45,6 +56,7 @@ def scrape_cartoon(page):
     cartoon = {}
     try:
         page.goto("https://ekantipur.com", timeout=60000)
+        bypass_ads(page)
         page.wait_for_load_state("networkidle")
 
         # Navigate to cartoon page
@@ -68,7 +80,7 @@ def scrape_cartoon(page):
         # Bundles the info into a dictionary
         cartoon = {
             "title": title,
-            "image_url": img.get_attribute("src") or img.get_attribute("data-src") if img else None,
+            "image_url": img.get_attribute("src") if img else None,
             "author": author
         }
 
